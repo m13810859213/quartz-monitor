@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务监控</title>
+    <link rel="stylesheet" href="./jquery-easyui-1.5.5.6/themes/default/easyui.css">
+    <link rel="stylesheet" href="./jquery-easyui-1.5.5.6/themes/icon.css">
+    <link rel="stylesheet" href="./jquery-easyui-1.5.5.6/demo/demo.css">
+    <script src="./jquery-easyui-1.5.5.6/jquery.min.js"></script>
+    <script src="./jquery-easyui-1.5.5.6/jquery.easyui.min.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            $("#dg").datagrid({
+                title:"任务列表",
+                columns:[
+                    [{field:'jobName',title:'名称'},
+                    {field:'jobGroup',title:'分组'},
+                    {field:'status',title:'状态'},
+                    {field:'jobDescription',title:'描述'},
+                    {field:'className',title:'类名'},
+                    {field:'previousFireTime',title:'上次执行时间'},
+                    {field:'nextFireTime',title:'下次执行时间'},
+                    {field:'executeCount',title:'执行次数'},
+                    // {field:'exceptionCount',title:'异常数'},
+                    // {field:'lastExceptionCount',title:'上次异常时间'}
+                    {field:'operation',title:'操作',width:180,
+                        formatter: function(value,row,index){
+                            var str = '<a href="#"  class="opt" onclick="stopJob('+index+')">暂停</a>  <a href="#"  class="opt" onclick="resumeJob('+index+')">恢复</a>  <a href="#" class="opt" onclick="execJob('+index+')">立即执行</a>';
+                            return str;
+                        }}]],
+                url:"/triggers",
+                method:"get",
+                fitColumns:true,
+                onLoadSuccess:function (data) {
+                    $(".opt").linkbutton();
+                }
+            });
+
+            $("#dg2").datagrid({
+                title:"执行中任务",
+                columns:[
+                    [{field:'jobName',title:'名称'},
+                        {field:'jobGroup',title:'分组'},
+                        {field:'jobDescription',title:'描述'},
+                        {field:'scheduledFireTime',title:'计划时间'},
+                        {field:'fireTime',title:'执行时间'},
+                        {field:'refireCount',title:'重试次数'}
+                        ]],
+                url:"/executing",
+                method:"get",
+                fitColumns:true
+            });
+            $("#btn").click(function () {
+                $.ajax({
+                    url: "/startJobs",
+                    success: function(data){
+                        $.messager.alert("提示",data);
+                    }});
+            });
+            $("#reload").click(function () {
+                $("#dg").datagrid("reload");
+                $("#dg2").datagrid("reload");
+            });
+        });
+        function stopJob(index) {
+            var rows=$("#dg").datagrid("getRows");
+            var row=rows[index];
+            $.post("/stopJob",{name:row.jobName,group:row.jobGroup},function (result) {
+                if(result==true){
+                    $.messager.alert('提示','任务已暂停!');
+                }else{
+                    $.messager.alert('提示','任务暂停失败!');
+                }
+            });
+        }
+        function resumeJob(index) {
+            var rows=$("#dg").datagrid("getRows");
+            var row=rows[index];
+            $.post("/resumeJob",{name:row.jobName,group:row.jobGroup},function (result) {
+                if(result==true){
+                    $.messager.alert('提示','任务已恢复!');
+                }else{
+                    $.messager.alert('提示','任务恢复失败!');
+                }
+            });
+        }
+        function execJob(index) {
+            var rows=$("#dg").datagrid("getRows");
+            var row=rows[index];
+            $.post("/execJob",{name:row.jobName,group:row.jobGroup},function (result) {
+                if(result==true){
+                    $.messager.alert('提示','任务已执行!');
+                }else{
+                    $.messager.alert('提示','任务执行失败!');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div style="margin-bottom: 20px">
+        <a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">开始任务</a>
+        <a id="reload" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">刷新</a>
+    </div>
+    <div style="margin-bottom: 20px">
+        <table id="dg"></table>
+    </div>
+    <div style="margin-bottom: 20px">
+        <table id="dg2"></table>
+    </div>
+</body>
+</html>
