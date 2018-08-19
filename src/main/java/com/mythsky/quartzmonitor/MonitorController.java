@@ -16,4 +16,8 @@ public class MonitorController {
     public String index(){
         return "index";
     }
+    @GetMapping("/show")
+    public String show(){
+        return "show";
+    }
 }

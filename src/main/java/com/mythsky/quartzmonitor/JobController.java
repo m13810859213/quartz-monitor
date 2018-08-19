@@ -39,6 +39,7 @@ public class JobController {
                     entity.setFinalFireTime(trigger.getFinalFireTime());
                     entity.setExecuteCount(((SimpleTriggerImpl) trigger).getTimesTriggered());
 
+
                     Trigger.TriggerState triggerState= sched.getTriggerState(triggerKey);
                     entity.setStatus(triggerState.name());
 
