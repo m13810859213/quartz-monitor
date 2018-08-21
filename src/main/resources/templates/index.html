@@ -50,6 +50,19 @@
                 method:"get",
                 fitColumns:true
             });
+
+            $("#dg3").datagrid({
+                title:"系统状态",
+                columns:[
+                    [{field:'activeCount',title:'活跃线程数'},
+                        {field:'corePoolSize',title:'核心线程数'},
+                        {field:'maxPoolSize',title:'最大线程数'},
+                        {field:'blockedSize',title:'队列任务数'}
+                    ]],
+                url:"/executor",
+                method:"get",
+                fitColumns:true
+            });
             $("#btn").click(function () {
                 $.ajax({
                     url: "/startJobs",
@@ -60,6 +73,7 @@
             $("#reload").click(function () {
                 $("#dg").datagrid("reload");
                 $("#dg2").datagrid("reload");
+                $("#dg3").datagrid("reload");
             });
         });
         function stopJob(index) {
@@ -103,10 +117,13 @@
         <a id="reload" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">刷新</a>
     </div>
     <div style="margin-bottom: 20px">
-        <table id="dg"></table>
+        <table id="dg2"></table>
     </div>
     <div style="margin-bottom: 20px">
-        <table id="dg2"></table>
+        <table id="dg3"></table>
+    </div>
+    <div style="margin-bottom: 20px">
+        <table id="dg"></table>
     </div>
 </body>
 </html>

@@ -5,8 +5,11 @@ import org.quartz.core.QuartzScheduler;
 import org.quartz.impl.StdScheduler;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -19,6 +22,11 @@ import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 @RestController
 public class JobController {
+    @Autowired
+    private Scheduler scheduler;
+    @Autowired
+    private ThreadPoolTaskExecutor executor;
+
     @GetMapping("/triggers")
     public List<JobEntity> getTriggers(){
         List<JobEntity> list=new ArrayList<>();
@@ -58,7 +66,19 @@ public class JobController {
         }
         return list;
     }
-
+    @RequestMapping("/executor")
+    public List<ExecutorEntity> getExecutor(){
+        List<ExecutorEntity> list=new ArrayList<>();
+        ExecutorEntity entity=new ExecutorEntity();
+        entity.setActiveCount(executor.getActiveCount());
+        entity.setCorePoolSize(executor.getCorePoolSize());
+        entity.setMaxPoolSize(executor.getMaxPoolSize());
+        entity.setKeepAliveSeconds(executor.getKeepAliveSeconds());
+        entity.setPoolSize(executor.getPoolSize());
+        entity.setBlockedSize(executor.getThreadPoolExecutor().getQueue().size());
+        list.add(entity);
+        return list;
+    }
 
     @GetMapping("/executing")
     public List<JobEntity> getExecutingJobs(){
